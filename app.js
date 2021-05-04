@@ -30,11 +30,11 @@ const fetchDinos = async () => {
       )
     );
   }
+
 };
 
 fetchDinos();
 
-// Create Human Object
 class Human {
   constructor(name, feet, inches, weight, diet) {
     this.name = name;
@@ -45,83 +45,108 @@ class Human {
   }
 }
 
-// Use IIFE to get human data from form
-
-const getformData = function () {
-    const form = new FormData(document.querySelector("#dino-compare"));
-    if (
-        form.get("name") === "" ||
-        form.get("feet") !== "" ||
-        form.get("inches") === "" ||
-        form.get("weight") === "" ||
-        form.get("diet") === ""
-    )
-        return;
-
-    return new Human(
-        form.get("name"),
-        form.get("feet"),
-        form.get("inches"),
-        form.get("weight"),
-        form.get("diet")
-    );  
-};  
-
 let human = null;
 
 document.querySelector("#btn").addEventListener("click", (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    human = getformData();
-    if (!human) return;
-    addTilesToDom();
+  human = (function () {
+    const form = new FormData(document.querySelector("#dino-compare"));
+    if (
+      form.get("name") === "" ||
+      form.get("feet") === "" ||
+      form.get("inches") === "" ||
+      form.get("weight") === "" ||
+      form.get("diet") === ""
+    )
+      return false;
+
+    return new Human(
+      form.get("name"),
+      form.get("feet"),
+      form.get("inches"),
+      form.get("weight"),
+      form.get("diet")
+    );
+  })();
+
+  if (human) addTilesToDom();
 });
-// Create Dino Compare Method 1
-// NOTE: Weight in JSON file is in lbs, height in inches.
 
-// Create Dino Compare Method 2
-// NOTE: Weight in JSON file is in lbs, height in inches.
-
-// Create Dino Compare Method 3
-// NOTE: Weight in JSON file is in lbs, height in inches.
-
-// Generate Tiles for each Dino in Array
-
-// Add tiles to DOM
-const addTilesToDom = () => {
-    const grid = document.querySelector("#grid");
-
-    grid.innerHTML = "";
-
-    for (const dino of dinos) {
-
-        const div = document.createElement('div',);
-        div.setAttribute('class', 'grid-item');
-        div.innerHTML = `
-            <h3>${dino.species}</h3>
-            <p>${dino.fact}</p>
-            <img src="images/${dino.species.toLowerCase()}.png" alt="${dino.species}" />`;
-        
-        grid.appendChild(div)     
-    }
-
-    grid.insertBefore(addHumanGridItem(), grid.children[4])
+const compareDinoOne = (dino) => {
+  console.log(dino);
+  if (human.weight < dino.weight) {
+    return `${dino.species} is ${Math.floor(
+      dino.weight / human.weight
+    )} times heavier than you.`;
+  } else {
+    return  `${dino.species} is ${Math.floor(
+      human.weight / dino.weight
+    )} ligther than you.`;
+  }
 };
 
+const compareDinoTwo = (dino) => {
+  if (human.feet < dino.feet) {
+    return  `${dino.species} is ${Math.floor(
+      dino.height / human.feet
+    )} times bigger than you.`;
+  } else {
+    const feets = human.feet / dino.height;
 
-function addHumanGridItem() {
+    return  `${dino.species} is ${feets < 1 ? "is About you size"  : Math.floor(feets) + " times bigger than you."} `;
+  }
+};
 
+const compareDinoThree = (dino) => {
+  return  `${dino.species} has the same diet as some humans`;
+};
+
+const compareFuns = [compareDinoOne, compareDinoTwo, compareDinoThree];
+
+const addTilesToDom = () => {
+  const grid = document.querySelector("#grid");
+
+  grid.innerHTML = "";
+
+  let count = 0;
+
+
+  for (const dino of dinos) {
+    let match = false;
+
+    if (dino.diet === human.diet.toLowerCase()) {
+      
+      match = true
+    }
 
     const div = document.createElement("div");
     div.setAttribute("class", "grid-item");
-
     div.innerHTML = `
+            <h3>${dino.species}</h3>
+            <p>${match ? compareFuns[count](dino) : dino.fact}</p>
+            <img src="images/${dino.species.toLowerCase()}.png" alt="${
+      dino.species
+    }" />`;
+    if (match && count < 2){
+      count++;
+    }
+    match = false
+    grid.appendChild(div);
+  }
+  count = 0
+
+  grid.insertBefore(addHumanGridItem(), grid.children[4]);
+};
+
+function addHumanGridItem() {
+  const div = document.createElement("div");
+  div.setAttribute("class", "grid-item");
+
+  div.innerHTML = `
         <h3>${human.name}</h3>
+        <p>${human.diet === 'Omnivor' ? "yeah that's me who can eat anything." : ""}</p>
         <img src="images/human.png" alt="human" />`;
-    
-    return div;
 
+  return div;
 }
-// Remove form from screen
-
-// On button click, prepare and display infographic
