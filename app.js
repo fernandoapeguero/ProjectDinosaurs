@@ -132,8 +132,8 @@ const addTilesToDom = () => {
     div.innerHTML = `
             <h3>${dino.species}</h3>
             <p>${
-              match
-                ? compareFuns[Math.floor(Math.random() * 1 + Math.random() * 2)](dino)
+              match && dino.species !== "Pigeon"
+                ? compareFuns[Math.floor(Math.random() * 3)](dino)
                 : dino.fact
             }</p>
             <img src="images/${dino.species.toLowerCase()}.png" alt="${
