@@ -1,3 +1,4 @@
+const dinos = [];
 // Create Dino Constructor
 class Dino {
   constructor(species, weight, height, diet, where, when, fact) {
@@ -11,7 +12,6 @@ class Dino {
   }
 }
 
-const dinos = [];
 // Create Dino Objects
 const fetchDinos = async () => {
   const res = await fetch("./dino.json");
@@ -30,10 +30,7 @@ const fetchDinos = async () => {
       )
     );
   }
-
 };
-
-fetchDinos();
 
 class Human {
   constructor(name, feet, inches, weight, diet) {
@@ -47,7 +44,7 @@ class Human {
 
 let human = null;
 
-document.querySelector("#btn").addEventListener("click", (e) => {
+document.querySelector("#btn").addEventListener("click", async (e) => {
   e.preventDefault();
 
   human = (function () {
@@ -59,7 +56,7 @@ document.querySelector("#btn").addEventListener("click", (e) => {
       form.get("weight") === "" ||
       form.get("diet") === ""
     )
-      return false;
+    return false;
 
     return new Human(
       form.get("name"),
@@ -70,83 +67,108 @@ document.querySelector("#btn").addEventListener("click", (e) => {
     );
   })();
 
-  if (human) addTilesToDom();
+  if(dinos.length === 0) await fetchDinos();
+  if (human) addTilesToDom()
 });
 
+
+// methods to compare dinos to human weight, size and diet
 const compareDinoOne = (dino) => {
-  console.log(dino);
   if (human.weight < dino.weight) {
     return `${dino.species} is ${Math.floor(
       dino.weight / human.weight
     )} times heavier than you.`;
-  } else {
-    return  `${dino.species} is ${Math.floor(
-      human.weight / dino.weight
-    )} ligther than you.`;
   }
+
+  return `${dino.species} is ${Math.floor(
+    human.weight / dino.weight
+  )} ligther than you.`;
 };
 
 const compareDinoTwo = (dino) => {
-  if (human.feet < dino.feet) {
-    return  `${dino.species} is ${Math.floor(
+  if (human.feet < dino.height) {
+    return `${dino.species} is ${Math.floor(
       dino.height / human.feet
     )} times bigger than you.`;
-  } else {
-    const feets = human.feet / dino.height;
-
-    return  `${dino.species} is ${feets < 1 ? "is About you size"  : Math.floor(feets) + " times bigger than you."} `;
   }
+
+  const feets = human.feet / dino.height;
+
+  return `${dino.species} is ${
+    feets < 1
+      ? "is About you size"
+      : Math.floor(feets) + " times bigger than you."
+  } `;
 };
 
 const compareDinoThree = (dino) => {
-  return  `${dino.species} has the same diet as some humans`;
+        
+      if (dino.diet === human.diet){
+        return `${dino.species} has the same diet as some humans`;
+      } 
+      
+      return `They have a different diet than human do.`
 };
 
 const compareFuns = [compareDinoOne, compareDinoTwo, compareDinoThree];
 
+
+// add tiles to dom grid from arrays 
 const addTilesToDom = () => {
+
   const grid = document.querySelector("#grid");
-
+  
   grid.innerHTML = "";
-
-  let count = 0;
-
 
   for (const dino of dinos) {
     let match = false;
 
     if (dino.diet === human.diet.toLowerCase()) {
-      
-      match = true
+      match = true;
     }
 
     const div = document.createElement("div");
     div.setAttribute("class", "grid-item");
     div.innerHTML = `
             <h3>${dino.species}</h3>
-            <p>${match ? compareFuns[count](dino) : dino.fact}</p>
+            <p>${
+              match
+                ? compareFuns[Math.floor(Math.random() * 1 + Math.random() * 2)](dino)
+                : dino.fact
+            }</p>
             <img src="images/${dino.species.toLowerCase()}.png" alt="${
       dino.species
     }" />`;
-    if (match && count < 2){
-      count++;
-    }
-    match = false
+
+    match = false;
     grid.appendChild(div);
   }
-  count = 0
+  count = 0;
 
   grid.insertBefore(addHumanGridItem(), grid.children[4]);
+
+  hideForm();
 };
 
+
+// return human dom element
 function addHumanGridItem() {
   const div = document.createElement("div");
   div.setAttribute("class", "grid-item");
 
   div.innerHTML = `
         <h3>${human.name}</h3>
-        <p>${human.diet === 'Omnivor' ? "yeah that's me who can eat anything." : ""}</p>
+        <p>${
+          human.diet === "Omnivor" ? "yeah that's me who can eat anything." : ""
+        }</p>
         <img src="images/human.png" alt="human" />`;
 
   return div;
+}
+
+
+// hides the form 
+function hideForm(){
+  
+  const form = document.querySelector("#dino-compare").style.display = "none";
 }
